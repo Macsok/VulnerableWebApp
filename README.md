@@ -18,14 +18,44 @@ Zoptymalizowana pod kątem produkcji z PostgreSQL i Docker.
 
 ## Instalacja
 
-### Metoda 1: Lokalne uruchomienie z PostgreSQL
+### 🐳 Docker Compose (ZALECANE - wszystko działa automatycznie)
 
-1. **Zainstaluj PostgreSQL** na swoim komputerze lub użyj Docker:
+**Uruchomienie aplikacji (jeden krok):**
+
 ```bash
-docker run --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=flask_app -p 5432:5432 -d postgres:15-alpine
+# Zatrzymaj i usuń stare kontenery (jeśli istnieją)
+docker-compose down -v
+
+# Uruchom aplikację (baza danych + Flask + auto-inicjalizacja)
+docker-compose up --build
+
+# Aplikacja dostępna na: http://localhost:5000
 ```
 
-2. **Zainstaluj wymagane pakiety Python:**
+**Zatrzymanie:**
+```bash
+docker-compose down
+```
+
+**Usunięcie z danymi (czysty reset):**
+```bash
+docker-compose down -v
+```
+
+---
+
+### Metoda 2: Lokalne uruchomienie (wymaga PostgreSQL)
+
+### Metoda 2: Lokalne uruchomienie (wymaga PostgreSQL)
+
+1. **Zainstaluj PostgreSQL** na swoim komputerze
+
+2. **Utwórz bazę danych:**
+```bash
+createdb flask_app
+```
+
+3. **Zainstaluj wymagane pakiety Python:**
 ```bash
 pip install -r requirements.txt
 ```
@@ -120,18 +150,28 @@ Dla środowiska produkcyjnego:
 3. Użyj zewnętrznej bazy PostgreSQL (np. AWS RDS, Azure Database)
 4. Dodaj reverse proxy (nginx) i WSGI server (gunicorn)
 
-## Przydatne komendy
+## Przydatne komendy Docker
 
 ```bash
-# Zatrzymaj Docker Compose
-docker-compose down
+# Zobacz logi aplikacji
+docker-compose logs -f web
 
-# Zobacz logi
-docker-compose logs -f
+# Zobacz logi bazy danych
+docker-compose logs -f db
 
 # Połącz się z bazą danych
-docker-compose exec db psql -U postgres -d flask_app
+docker-compose exec db psql -U flaskapp -d flask_app
 
 # Restart aplikacji
 docker-compose restart web
+
+# Wejdź do kontenera aplikacji
+docker-compose exec web sh
 ```
+
+## Dane logowania (PostgreSQL w Docker)
+
+- **User:** flaskapp
+- **Password:** FlaskSecurePass2024
+- **Database:** flask_app
+- **Host:** db (wewnątrz Docker) lub localhost:5432 (z zewnątrz)

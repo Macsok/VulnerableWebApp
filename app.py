@@ -9,19 +9,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'twoj-sekretny-klucz-zmien-go-w-produkcji')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Skalowalna konfiguracja bazy danych - domyślnie PostgreSQL
 # Możliwość łatwej zmiany przez zmienną środowiskową DATABASE_URL
-# Format dla PostgreSQL: postgresql://username:password@localhost:5432/database_name
-# Dla rozwoju lokalnego: sqlite:///app.db
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:Qw3rTy#9kLm2Zx8vB@localhost:5432/flask_app')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_size': 10,  # Liczba stałych połączeń w puli
-    'pool_recycle': 3600,  # Odświeżanie połączeń co godzinę
-    'pool_pre_ping': True,  # Sprawdzanie połączeń przed użyciem
-    'max_overflow': 20  # Maksymalna liczba dodatkowych połączeń
+    'pool_size': 10,
+    'pool_recycle': 3600,
+    'pool_pre_ping': True,
+    'max_overflow': 20
 }
 
 db = SQLAlchemy(app)
@@ -39,9 +37,9 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-# Inicjalizacja bazy danych
-with app.app_context():
-    db.create_all()
+# Usuń automatyczną inicjalizację - będzie w init_db.py
+# with app.app_context():
+#     db.create_all()
 
 @app.route('/')
 def index():
@@ -131,4 +129,4 @@ def delete_message(message_id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

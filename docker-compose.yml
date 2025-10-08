@@ -6,15 +6,15 @@ services:
     image: postgres:15-alpine
     container_name: flask_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Qw3rTy#9kLm2Zx8vB
+      POSTGRES_USER: flaskapp
+      POSTGRES_PASSWORD: FlaskSecurePass2024
       POSTGRES_DB: flask_app
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U flaskapp"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,17 +24,15 @@ services:
     build: .
     container_name: flask_app
     environment:
-      DATABASE_URL: postgresql://postgres:Qw3rTy#9kLm2Zx8vB@db:5432/flask_app
-      SECRET_KEY: 7Hj9#mNp2Kq5RtYu8WxZaB4cDeFgHiJkLmNo6PqRs
+      DATABASE_URL: postgresql://flaskapp:FlaskSecurePass2024@db:5432/flask_app
+      SECRET_KEY: MyFlaskSecretKey2024XYZ123ABC
       FLASK_ENV: production
     ports:
       - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - .:/app
-    command: python app.py
+    restart: unless-stopped
 
 volumes:
   postgres_data:
