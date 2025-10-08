@@ -5,6 +5,7 @@ Zoptymalizowana pod kątem produkcji z PostgreSQL i Docker.
 
 ## Funkcjonalności
 
+
 - ✅ Rejestracja i logowanie użytkowników
 - ✅ Sesje użytkowników
 - ✅ System czatu (wysyłanie i usuwanie wiadomości)
