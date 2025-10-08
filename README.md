@@ -9,12 +9,14 @@ Zoptymalizowana pod kątem produkcji z PostgreSQL i Docker.
 - ✅ Rejestracja i logowanie użytkowników
 - ✅ Sesje użytkowników
 - ✅ System czatu (wysyłanie i usuwanie wiadomości)
+- ✅ **Automatyczne odświeżanie po dodaniu/usunięciu wiadomości**
 - ✅ **Skalowalna baza danych PostgreSQL**
 - ✅ **Pool połączeń dla wydajności**
 - ✅ Hashowanie haseł
-- ✅ Responsywny interfejs z Bootstrap
+- ✅ Responsywny interfejs z Bootstrap Icons
 - ✅ **Docker Compose dla łatwego wdrożenia**
 - ✅ **Konfiguracja przez zmienne środowiskowe**
+- ✅ Animacje i płynny interfejs użytkownika
 
 ## Instalacja
 

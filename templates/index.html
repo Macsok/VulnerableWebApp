@@ -6,18 +6,29 @@
 <div class="card mb-4">
     <div class="card-body">
         <h2 class="card-title mb-4">💬 Czat</h2>
-        <form method="POST" action="{{ url_for('send_message') }}">
+        <form id="messageForm" method="POST" action="{{ url_for('send_message') }}">
             <div class="mb-3">
-                <textarea class="form-control" name="content" rows="3" placeholder="Napisz wiadomość..." required></textarea>
+                <textarea class="form-control" id="messageContent" name="content" rows="3" placeholder="Napisz wiadomość..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Wyślij wiadomość</button>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send"></i> Wyślij wiadomość
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i> Odśwież
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
 <div class="card">
     <div class="card-body">
-        <h3 class="card-title mb-4">Wiadomości</h3>
+        <h3 class="card-title mb-4">
+            Wiadomości
+            <small class="text-muted" id="lastUpdate"></small>
+        </h3>
+        <div id="messagesContainer">
         {% if messages %}
             {% for message in messages %}
             <div class="message-item">
@@ -28,8 +39,10 @@
                         <div class="mt-2">{{ message.content }}</div>
                     </div>
                     {% if message.user_id == session['user_id'] %}
-                    <form method="POST" action="{{ url_for('delete_message', message_id=message.id) }}" class="ms-2">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">Usuń</button>
+                    <form method="POST" action="{{ url_for('delete_message', message_id=message.id) }}" class="ms-2" onsubmit="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i> Usuń
+                        </button>
                     </form>
                     {% endif %}
                 </div>
@@ -38,6 +51,43 @@
         {% else %}
             <p class="text-muted text-center">Brak wiadomości. Napisz pierwszą!</p>
         {% endif %}
+        </div>
     </div>
 </div>
+
+<script>
+// Automatyczne odświeżanie czasu ostatniej aktualizacji
+function updateLastUpdateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('pl-PL');
+    document.getElementById('lastUpdate').textContent = `(ostatnia aktualizacja: ${timeString})`;
+}
+
+// Obsługa formularza - wysłanie i odświeżenie strony
+document.getElementById('messageForm').addEventListener('submit', function(e) {
+    // Formularz zostanie wysłany normalnie (POST)
+    // Po wysłaniu strona automatycznie się odświeży przez redirect z backendu
+    
+    // Opcjonalnie: wyczyść pole tekstowe po wysłaniu
+    setTimeout(() => {
+        document.getElementById('messageContent').value = '';
+    }, 100);
+});
+
+// Automatyczne odświeżanie strony co 30 sekund (opcjonalne)
+let autoRefreshEnabled = false; // Zmień na true aby włączyć auto-odświeżanie
+
+if (autoRefreshEnabled) {
+    setInterval(function() {
+        location.reload();
+    }, 30000); // 30 sekund
+}
+
+// Aktualizuj czas przy załadowaniu strony
+updateLastUpdateTime();
+
+// Scroll do góry po załadowaniu (aby zobaczyć formularz)
+window.scrollTo(0, 0);
+</script>
+
 {% endblock %}
