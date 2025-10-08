@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'twoj-sekretny-klucz-zmi
 # Możliwość łatwej zmiany przez zmienną środowiskową DATABASE_URL
 # Format dla PostgreSQL: postgresql://username:password@localhost:5432/database_name
 # Dla rozwoju lokalnego: sqlite:///app.db
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/flask_app')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://flaskuser:Qw3rTy#9kLm2Zx8vB@localhost:5432/flask_app')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_size': 10,  # Liczba stałych połączeń w puli
