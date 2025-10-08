@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Czat{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="card-title mb-4">💬 Czat</h2>
+        <form method="POST" action="{{ url_for('send_message') }}">
+            <div class="mb-3">
+                <textarea class="form-control" name="content" rows="3" placeholder="Napisz wiadomość..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Wyślij wiadomość</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title mb-4">Wiadomości</h3>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="message-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="message-author">{{ message.author.username }}</div>
+                        <div class="message-time">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                        <div class="mt-2">{{ message.content }}</div>
+                    </div>
+                    {% if message.user_id == session['user_id'] %}
+                    <form method="POST" action="{{ url_for('delete_message', message_id=message.id) }}" class="ms-2">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">Usuń</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted text-center">Brak wiadomości. Napisz pierwszą!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

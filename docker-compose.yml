@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Baza danych PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: flask_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flask_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplikacja Flask
+  web:
+    build: .
+    container_name: flask_app
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/flask_app
+      SECRET_KEY: super-secret-key-for-production
+      FLASK_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: python app.py
+
+volumes:
+  postgres_data:
