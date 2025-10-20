@@ -1,0 +1,37 @@
+# Przykładowy plik manifestu. 
+# Zastąp ten plik swoimi własnymi definicjami deploymentu i serwisu.
+# Możesz tu umieścić wiele zasobów oddzielonych przez ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment # Zmień na nazwę swojego deploymentu
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app # Zmień na etykietę swojej aplikacji
+  template:
+    metadata:
+      labels:
+        app: my-app # Zmień na etykietę swojej aplikacji
+    spec:
+      containers:
+      - name: my-app-container # Nazwa kontenera w podzie
+        # WAŻNE: Zastąp poniższą wartość pełną nazwą swojego obrazu
+        # Format: <nazwa-rejestru>.azurecr.io/<nazwa-obrazu>:<tag>
+        image: <unikalna-nazwa-rejestru>.azurecr.io/<nazwa-twojego-obrazu>:v1
+        ports:
+        - containerPort: 80 # Zmień na port, na którym nasłuchuje Twoja aplikacja
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service # Nazwa serwisu
+spec:
+  selector:
+    app: my-app # Musi pasować do etykiety z deploymentu
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80 # Musi pasować do portu kontenera (containerPort)
+  type: LoadBalancer

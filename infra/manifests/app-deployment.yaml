@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vulnerablewebapp
+  labels:
+    app: vulnerablewebapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vulnerablewebapp
+  template:
+    metadata:
+      labels:
+        app: vulnerablewebapp
+    spec:
+      containers:
+        - name: vulnerablewebapp
+          image: REPLACE_WITH_ACR/vulnerablewebapp:latest
+          ports:
+            - containerPort: 5000
