@@ -12,8 +12,6 @@ terraform {
 # Azure provider configuration
 provider "azurerm" {
   features {}
-  # Optionally pin subscription; otherwise provider uses the default from az login
-  subscription_id = var.subscription_id
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -27,6 +25,9 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
+  # Enable public (anonymous) pull access so AKS can pull images without Role Assignment
+  public_network_access_enabled = true
+  # anonymous_pull_enabled        = true
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
@@ -57,9 +58,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-# Grant the AKS kubelet identity permission to pull from ACR
-resource "azurerm_role_assignment" "acr_pull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-}
+# # Grant the AKS kubelet identity permission to pull from ACR
+# resource "azurerm_role_assignment" "acr_pull" {
+#   scope                = azurerm_container_registry.acr.id
+#   role_definition_name = "AcrPull"
+#   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+# }
