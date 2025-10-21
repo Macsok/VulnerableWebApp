@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: vulnerablewebapp
-          image: REPLACE_WITH_ACR/vulnerablewebapp:latest
+          image: nginx:alpine
           ports:
-            - containerPort: 5000
+            - containerPort: 80
