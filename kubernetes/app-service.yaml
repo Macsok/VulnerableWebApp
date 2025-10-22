@@ -1,12 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: vulnerablewebapp-service
+  name: nginx-frontend-service
+  annotations:
+    service.beta.kubernetes.io/azure-pip-name: "myAKSPublicIP"
 spec:
   selector:
-    app: vulnerablewebapp
+    app: nginx-frontend
   type: LoadBalancer
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+      name: https

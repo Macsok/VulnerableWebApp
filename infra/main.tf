@@ -58,9 +58,20 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-# # Grant the AKS kubelet identity permission to pull from ACR
-# resource "azurerm_role_assignment" "acr_pull" {
-#   scope                = azurerm_container_registry.acr.id
-#   role_definition_name = "AcrPull"
-#   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-# }
+# Static Public IP w node resource group (MC_*) - AKS ma tam domyślnie uprawnienia
+resource "azurerm_public_ip" "aks_public_ip" {
+  name                = "myAKSPublicIP"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_kubernetes_cluster.aks.node_resource_group
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  domain_name_label   = var.dns_label
+  
+  tags = {
+    purpose     = "aks-ingress-egress"
+    environment = "demo"
+    managed_by  = "terraform"
+  }
+  
+  depends_on = [azurerm_kubernetes_cluster.aks]
+}

@@ -1,21 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vulnerablewebapp
+  name: nginx-frontend
   labels:
-    app: vulnerablewebapp
+    app: nginx-frontend
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: vulnerablewebapp
+      app: nginx-frontend
   template:
     metadata:
       labels:
-        app: vulnerablewebapp
+        app: nginx-frontend
     spec:
       containers:
-        - name: vulnerablewebapp
+        - name: nginx
           image: nginx:alpine
           ports:
             - containerPort: 80
+              name: http
+            - containerPort: 443
+              name: https
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+            - name: ssl-certs
+              mountPath: /etc/nginx/ssl
+              readOnly: true
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+        - name: ssl-certs
+          secret:
+            secretName: nginx-ssl-secret
+            items:
+              - key: tls.crt
+                path: certificate.crt
+              - key: tls.key
+                path: private.key

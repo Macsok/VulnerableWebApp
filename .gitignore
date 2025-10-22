@@ -2,3 +2,10 @@
 infra/.terraform/*
 *.tfstate
 *.tfstate.backup
+
+# SSL/TLS Certificates - NIE commituj do git
+*.key
+*.crt
+*.pem
+kubernetes/certificate.crt
+kubernetes/private.key

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-backend
+  labels:
+    app: httpd-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpd-backend
+  template:
+    metadata:
+      labels:
+        app: httpd-backend
+    spec:
+      containers:
+        - name: httpd
+          image: httpd:2.4-alpine
+          ports:
+            - containerPort: 80
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpd-backend-service
+spec:
+  selector:
+    app: httpd-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
