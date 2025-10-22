@@ -1,9 +1,29 @@
-# Load environment variables
+# Wymagane narzędzia:
+## Terraform
+![alt text](resources/terraform-install.png)
+## AZ CLI
+Pierwsze kroki z tej strony
+https://developer.hashicorp.com/terraform/tutorials/azure-get-started/azure-build
 ```ps
-Invoke-Expression (Get-Content -Raw -Path ".\env-vars.ps1")
+Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
 ```
-Check:
+## Kubectl
+Instalacja poniżej.
+
+# Load environment variables
+Jak mamy zmiennej w pliku w formacie:
 ```
+$Env:ARM_CLIENT_ID = "<APPID_VALUE>"
+$Env:ARM_CLIENT_SECRET = "<PASSWORD_VALUE>"
+$Env:ARM_SUBSCRIPTION_ID = "<SUBSCRIPTION_ID>"
+$Env:ARM_TENANT_ID = "<TENANT_VALUE>"
+```
+To wczytujemy:
+```ps
+Invoke-Expression (Get-Content -Raw -Path ".\<nasz plik>")
+```
+Sprawdzenie:
+```ps
 Get-ChildItem Env:
 ```
 
@@ -17,7 +37,15 @@ az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableW
 az aks install-cli
 ```
 
-# Deploy app (from kubernetes/ directory)
+# Budowanie Infrastruktury
+```ps
+cd infra
+terraform init
+terraform apply #następnie 'yes'
 ```
-kubectl apply -f .
+
+# Budowanie Aplikacji
+```ps
+cd kubernetes
+kubectl apply -k .
 ```
