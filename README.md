@@ -45,6 +45,7 @@ terraform apply #następnie 'yes'
 ```
 
 # Budowanie Aplikacji
+Przed zbudowaniem należy dodać certyfikat i klucz do katalogu kubernetes/ (cert-bundle.crt, private.key).
 ```ps
 cd kubernetes
 kubectl apply -k .
