@@ -50,3 +50,13 @@ Przed zbudowaniem należy dodać certyfikat i klucz do katalogu kubernetes/ (cer
 cd kubernetes
 kubectl apply -k .
 ```
+
+# Usuwanie Aplikacji
+```ps
+kubectl delete -k .
+```
+
+# Usuwanie Infrastruktury
+```
+terraform destroy
+```
