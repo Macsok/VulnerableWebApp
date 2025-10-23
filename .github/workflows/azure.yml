@@ -1,4 +1,4 @@
-
+# File: .github/workflows/workflow.yml
 
 on: [push]
 
@@ -13,6 +13,7 @@ jobs:
     - uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
 
     - name: Azure CLI script
       uses: azure/cli@v2
@@ -20,3 +21,13 @@ jobs:
         azcliversion: latest
         inlineScript: |
           az account show
+
+    - name: Azure PowerShell script
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          Get-AzWebApp
+          az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
+          kubectl get all
+          
