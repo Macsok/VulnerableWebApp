@@ -22,12 +22,13 @@ jobs:
         inlineScript: |
           az account show
 
-    - name: Azure PowerShell script
+    - name: Run kubectl apply -k .
       uses: azure/powershell@v2
       with:
         azPSVersion: "latest"
         inlineScript: |
-          Get-AzWebApp
+          $Env:TLS_CRT = {{ secrets.TLS_CRT }}
+          $Env:TLS_KEY = {{ secrets.TLS_KEY }}
           az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
-          kubectl get all
-          
+          cd kubernetes
+          kubectl apply -k .
