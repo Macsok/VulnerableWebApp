@@ -10,12 +10,6 @@ variable "location" {
   default     = "switzerlandnorth"
 }
 
-variable "acr_name" {
-  description = "Name for Azure Container Registry (must be globally unique)"
-  type        = string
-  default     = "vulnerableWebappRegistry"
-}
-
 variable "aks_name" {
   description = "AKS cluster name"
   type        = string

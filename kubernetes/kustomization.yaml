@@ -10,6 +10,10 @@ resources:
 secretGenerator:
   - name: nginx-ssl-secret
     type: kubernetes.io/tls
-    files:
-      - tls.crt=cert-bundle.crt
-      - tls.key=private.key
+    literals:
+      - tls.crt=${TLS_CRT}
+      - tls.key=${TLS_KEY}
+
+# files:
+#       - tls.crt=cert-bundle.crt
+#       - tls.key=private.key
