@@ -17,8 +17,7 @@ jobs:
       name: Check out code
 
     - name: Change Directory
-      run: cd app
-      run: ls
+      run: cd app && ls
   
     - uses: mr-smithers-excellent/docker-build-push@v6
       name: Build & push Docker image
