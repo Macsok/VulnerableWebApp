@@ -16,4 +16,4 @@ secretGenerator:
 
 # files:
 #       - tls.crt=cert-bundle.crt
-#       - tls.key=private.key
+#       - tls.key=private.key test
