@@ -23,7 +23,7 @@ jobs:
       name: Build & push Docker image
       with:
         image: maggieblue/vulnerable-project
-        tags: v1, latest
+        tags: latest
         registry: docker.io
         directory: app
         dockerfile: app/Dockerfile
