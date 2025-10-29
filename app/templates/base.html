@@ -47,6 +47,31 @@
                 transform: translateY(0);
             }
         }
+        .pod-info {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-family: 'Courier New', monospace;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+        }
+        .pod-info i {
+            margin-right: 5px;
+            color: #4CAF50;
+        }
+        .pod-info strong {
+            color: #667eea;
+        }
+        .pod-info .pod-name {
+            color: #4CAF50;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +95,20 @@
         {% endwith %}
 
         {% block content %}{% endblock %}
+    </div>
+
+    <!-- Etykieta z informacją o podzie Kubernetes -->
+    <div class="pod-info">
+        <div>
+            <i class="bi bi-hdd-rack"></i>
+            <strong>Pod:</strong> <span class="pod-name">{{ pod_name }}</span>
+        </div>
+        {% if pod_ip != 'unknown' %}
+        <div style="margin-top: 5px;">
+            <i class="bi bi-wifi"></i>
+            <strong>IP:</strong> {{ pod_ip }}
+        </div>
+        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -4,6 +4,7 @@ metadata:
   name: nginx-frontend-service
   annotations:
     service.beta.kubernetes.io/azure-pip-name: "myAKSPublicIP"
+    service.beta.kubernetes.io/azure-load-balancer-resource-group: "MC_vulnerable-web-app-rg_vulnerableWebappAKS_switzerlandnorth"
 spec:
   selector:
     app: nginx-frontend

@@ -24,6 +24,16 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 
 db = SQLAlchemy(app)
 
+# Dodaj informacje o podzie do wszystkich szablonów
+@app.context_processor
+def inject_pod_info():
+    """Przekazuje informacje o podzie Kubernetes do wszystkich szablonów"""
+    return {
+        'pod_name': os.environ.get('POD_NAME', 'local'),
+        'pod_namespace': os.environ.get('POD_NAMESPACE', 'default'),
+        'pod_ip': os.environ.get('POD_IP', 'unknown')
+    }
+
 # Modele bazy danych
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
