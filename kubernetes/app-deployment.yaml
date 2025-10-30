@@ -1,42 +1,100 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-frontend
+  name: flask-app
   labels:
-    app: nginx-frontend
+    app: flask-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nginx-frontend
+      app: flask
   template:
     metadata:
       labels:
-        app: nginx-frontend
+        app: flask
     spec:
       containers:
-        - name: nginx
-          image: nginx:alpine
-          ports:
-            - containerPort: 80
-              name: http
-            - containerPort: 443
-              name: https
-          volumeMounts:
-            - name: nginx-config
-              mountPath: /etc/nginx/conf.d
-            - name: ssl-certs
-              mountPath: /etc/nginx/ssl
-              readOnly: true
+      - name: flask
+        image: maggieblue/vulnerable-project:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: DATABASE_URL
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: SECRET_KEY
+        - name: FLASK_ENV
+          value: production
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: POSTGRES_PASSWORD
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
       volumes:
-        - name: nginx-config
-          configMap:
-            name: nginx-config
-        - name: ssl-certs
-          secret:
-            secretName: nginx-ssl-secret
-            items:
-              - key: tls.crt
-                path: certificate.crt
-              - key: tls.key
-                path: private.key
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc

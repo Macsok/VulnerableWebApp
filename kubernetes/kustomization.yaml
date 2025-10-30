@@ -2,18 +2,30 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - flask-deployment.yaml
-  - nginx-configmap.yaml
   - app-deployment.yaml
-  - app-service.yaml
+  - app-services.yaml
+  - nginx-configmap.yaml
+  - hpa.yaml
+  - nginx-redirect.yaml
+  - nginx-loadbalancer.yaml
 
 secretGenerator:
   - name: nginx-ssl-secret
     type: kubernetes.io/tls
-    literals:
-      - tls.crt=${TLS_CRT}
-      - tls.key=${TLS_KEY}
+    # GitHub Actions secrets
+    # literals:
+    #   - tls.crt=${TLS_CRT}
+    #   - tls.key=${TLS_KEY}
 
-    # files:
-    #       - tls.crt=cert-bundle.crt
-    #       - tls.key=private.key
+    # Local secrets
+    files:
+      - tls.crt=cert-bundle.crt
+      - tls.key=private.key
+  
+  - name: app-secrets
+    envs:
+      - .env
+  
+  - name: db-secrets
+    envs:
+      - .env

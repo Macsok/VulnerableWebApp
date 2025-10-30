@@ -8,5 +8,6 @@ infra/.terraform/*
 *.key
 *.crt
 *.pem
+*.env
 kubernetes/certificate.crt
 kubernetes/private.key

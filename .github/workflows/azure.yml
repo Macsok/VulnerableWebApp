@@ -29,9 +29,12 @@ jobs:
       uses: azure/powershell@v2
       with:
         azPSVersion: "latest"
+        # $Env:TLS_CRT = {{ secrets.TLS_CRT }}
+        # $Env:TLS_KEY = {{ secrets.TLS_KEY }}
         inlineScript: |
-          $Env:TLS_CRT = {{ secrets.TLS_CRT }}
-          $Env:TLS_KEY = {{ secrets.TLS_KEY }}
+          echo {{ secrets.TLS_CRT }} > cert-bundle.crt
+          echo {{ secrets.TLS_KEY }} > private.key
+          echo {{ secrets.ENV }} > .env
           az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
           cd kubernetes
           kubectl apply -k .
