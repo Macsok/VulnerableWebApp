@@ -17,7 +17,7 @@ secretGenerator:
     #   - tls.crt=${TLS_CRT}
     #   - tls.key=${TLS_KEY}
 
-    # Local secrets
+    # Local secrets:
     files:
       - tls.crt=cert-bundle.crt
       - tls.key=private.key
