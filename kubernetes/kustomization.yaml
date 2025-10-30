@@ -24,8 +24,8 @@ secretGenerator:
   
   - name: app-secrets
     envs:
-      - env
+      - .env
   
   - name: db-secrets
     envs:
-      - env
+      - .env
