@@ -2,7 +2,7 @@
 
 on: [push]
 
-name: Run Azure Login With a Service Principal Secret
+name: Redeploy to Azure AKS
 
 jobs:
 
@@ -32,9 +32,12 @@ jobs:
         # $Env:TLS_CRT = {{ secrets.TLS_CRT }}
         # $Env:TLS_KEY = {{ secrets.TLS_KEY }}
         inlineScript: |
+          ls 
+          pwd
           echo {{ secrets.TLS_CRT }} > cert-bundle.crt
           echo {{ secrets.TLS_KEY }} > private.key
           echo {{ secrets.ENV }} > .env
+          ls
           az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
           cd kubernetes
           kubectl apply -k .
