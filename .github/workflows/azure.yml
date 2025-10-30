@@ -35,7 +35,7 @@ jobs:
           cd kubernetes
           echo {{ secrets.TLS_CRT }} > cert-bundle.crt
           echo {{ secrets.TLS_KEY }} > private.key
-          echo {{ secrets.ENV }} > env
+          echo {{ secrets.ENV }} > .env
           ls
           az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
           kubectl apply -k .
