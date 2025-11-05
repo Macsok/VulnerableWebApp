@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: suricata-ips
+  labels:
+    app: suricata-ips
+spec:
+  selector:
+    matchLabels:
+      app: suricata-ips
+  template:
+    metadata:
+      labels:
+        app: suricata-ips
+    spec:
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+        - key: "suricata"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: suricata
+          image: jasonish/suricata:7.0.8
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN","NET_RAW"]
+          args:
+            # uruchomienie suricaty z określonym configiem i nfqueue id 0
+            - "-c"
+            - "/etc/suricata/suricata.yaml"
+            - "-q"
+            - "0"
+          volumeMounts:
+            - name: suricata-config
+              mountPath: /etc/suricata
+            - name: suricata-logs
+              mountPath: /var/log/suricata
+            - name: lib-modules
+              mountPath: /lib/modules
+              readOnly: true
+      volumes:
+        - name: suricata-config
+          configMap:
+            name: suricata-config
+        - name: suricata-logs
+          hostPath:
+            path: /var/log/suricata
+            type: DirectoryOrCreate
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+            type: Directory

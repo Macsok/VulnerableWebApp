@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsyslog
+  labels:
+    app: rsyslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsyslog
+  template:
+    metadata:
+      labels:
+        app: rsyslog
+    spec:
+      hostNetwork: true
+      tolerations:
+        - key: "suricata"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: rsyslog
+          image: balabit/rsyslog:8.2102.0
+          ports:
+            - containerPort: 514
+              hostPort: 514
+              protocol: UDP
+            - containerPort: 514
+              hostPort: 514
+              protocol: TCP
+          volumeMounts:
+            - name: rsyslog-logs
+              mountPath: /var/log/rsyslog
+      volumes:
+        - name: rsyslog-logs
+          hostPath:
+            path: /var/log/rsyslog
+            type: DirectoryOrCreate

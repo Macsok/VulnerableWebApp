@@ -6,6 +6,10 @@ resources:
   - nginx-configmap.yaml
   - app-deployment.yaml
   - app-service.yaml
+  - suricata-configmap.yaml
+  - suricata-daemonset.yaml
+  - iptables-redirect-daemonset.yaml
+  - rsyslog-deployment.yaml
 
 secretGenerator:
   - name: nginx-ssl-secret

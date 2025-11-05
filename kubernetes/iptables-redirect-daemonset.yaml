@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: iptables-redirect
+  labels:
+    app: iptables-redirect
+spec:
+  selector:
+    matchLabels:
+      app: iptables-redirect
+  template:
+    metadata:
+      labels:
+        app: iptables-redirect
+    spec:
+      hostNetwork: true
+      hostPID: true
+      # tolerations:
+      #   - key: "suricata"
+      #     operator: "Exists"
+      #     effect: "NoSchedule"
+      containers:
+        - name: iptables-setup
+          image: busybox:1.36.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if ! iptables -C FORWARD -j NFQUEUE --queue-num 0 >/dev/null 2>&1; then
+                iptables -I FORWARD -j NFQUEUE --queue-num 0
+              fi
+              if ! iptables -C INPUT -j NFQUEUE --queue-num 0 >/dev/null 2>&1; then
+                iptables -I INPUT -j NFQUEUE --queue-num 0
+              fi
+              tail -f /dev/null
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN","NET_RAW"]
+          volumeMounts:
+            - name: host-ipt
+              mountPath: /run
+      volumes:
+        - name: host-ipt
+          hostPath:
+            path: /run
+            type: Directory
