@@ -15,10 +15,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      # tolerations:
-      #   - key: "suricata"
-      #     operator: "Exists"
-      #     effect: "NoSchedule"
       containers:
         - name: iptables-setup
           image: busybox:1.36.1
@@ -26,22 +22,22 @@ spec:
             - /bin/sh
             - -c
             - |
-              if ! iptables -C FORWARD -j NFQUEUE --queue-num 0 >/dev/null 2>&1; then
-                iptables -I FORWARD -j NFQUEUE --queue-num 0
-              fi
-              if ! iptables -C INPUT -j NFQUEUE --queue-num 0 >/dev/null 2>&1; then
-                iptables -I INPUT -j NFQUEUE --queue-num 0
-              fi
+              echo "[*] Configuring iptables for NFQUEUE..."
+              iptables -C FORWARD -j NFQUEUE --queue-num 0 2>/dev/null || iptables -I FORWARD -j NFQUEUE --queue-num 0
+              iptables -C INPUT -j NFQUEUE --queue-num 0 2>/dev/null || iptables -I INPUT -j NFQUEUE --queue-num 0
+              echo "[+] iptables rules configured."
               tail -f /dev/null
           securityContext:
             privileged: true
             capabilities:
-              add: ["NET_ADMIN","NET_RAW"]
+              add:
+                - NET_ADMIN
+                - NET_RAW
           volumeMounts:
-            - name: host-ipt
+            - name: host-run
               mountPath: /run
       volumes:
-        - name: host-ipt
+        - name: host-run
           hostPath:
             path: /run
             type: Directory

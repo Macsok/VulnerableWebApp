@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syslog
+  labels:
+    app: syslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: syslog
+  template:
+    metadata:
+      labels:
+        app: syslog
+    spec:
+      containers:
+        - name: syslog
+          image: balabit/syslog-ng:latest
+          args: ["--no-caps", "-edv"]
+          ports:
+            - containerPort: 514
+              protocol: UDP
+          volumeMounts:
+            - name: syslog-config
+              mountPath: /etc/syslog-ng
+            - name: syslog-logs
+              mountPath: /var/log/syslog
+      volumes:
+        - name: syslog-config
+          configMap:
+            name: syslog-config
+        - name: syslog-logs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syslog-service
+spec:
+  selector:
+    app: syslog
+  type: ClusterIP
+  ports:
+    - name: syslog
+      protocol: UDP
+      port: 514
+      targetPort: 514

@@ -9,7 +9,7 @@ resources:
   - suricata-configmap.yaml
   - suricata-daemonset.yaml
   - iptables-redirect-daemonset.yaml
-  - rsyslog-deployment.yaml
+  - syslog-deployment.yaml
 
 secretGenerator:
   - name: nginx-ssl-secret

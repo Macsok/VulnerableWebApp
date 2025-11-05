@@ -6,7 +6,6 @@ data:
   suricata.yaml: |
     %YAML 1.1
     ---
-    # Minimalny/szablonowy plik konfiguracyjny Suricata dla trybu NFQUEUE (IPS)
     defaults:
       run-as:
         user: suricata
@@ -18,7 +17,6 @@ data:
     nfq:
       - id: 0
         threads: 4
-        # max_length można dostosować
         max_length: 65535
 
     outputs:
@@ -37,6 +35,11 @@ data:
       - syslog:
           enabled: yes
           facility: local5
+          level: info
+          identity: suricata
+          host: syslog-service
+          port: 514
+          format: legacy
 
     logging:
       default-log-level: info
@@ -51,5 +54,4 @@ data:
       enabled: yes
 
   local.rules: |
-    # Prosty test rule: wykrywa wiele nieudanych prób logowania HTTP (przykład)
     alert http any any -> any any (msg:"HTTP brute force attempt"; flow:established,to_server; content:"/login"; http_method; threshold: type both, track by_src, count 10, seconds 60; sid:1000001; rev:1;)

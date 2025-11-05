@@ -21,18 +21,19 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: suricata
-          image: jasonish/suricata:7.0.8
+          image: jasonish/suricata:8.0
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
             capabilities:
-              add: ["NET_ADMIN","NET_RAW"]
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - SYS_NICE
           args:
-            # uruchomienie suricaty z określonym configiem i nfqueue id 0
             - "-c"
             - "/etc/suricata/suricata.yaml"
-            - "-q"
-            - "0"
+            - "--af-packet=eth0"
           volumeMounts:
             - name: suricata-config
               mountPath: /etc/suricata

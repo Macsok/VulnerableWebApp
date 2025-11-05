@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: syslog-config
+data:
+  syslog-ng.conf: |
+    @version: 3.7
+    @include "scl.conf"
+
+    # Źródło: wszystko co przyjdzie po UDP 514
+    source s_net {
+      udp(ip(0.0.0.0) port(514));
+    };
+
+    # Cel: plik wewnątrz kontenera
+    destination d_logs {
+      file("/var/log/syslog/suricata.log");
+    };
+
+    log {
+      source(s_net);
+      destination(d_logs);
+    };
