@@ -8,17 +8,22 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: flask
+      app: vulnerablewebapp
   template:
     metadata:
       labels:
-        app: flask
+        app: vulnerablewebapp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: flask
         image: maggieblue/vulnerable-project:latest
         ports:
         - containerPort: 5000
+          name: http
         resources:
           requests:
             memory: "128Mi"

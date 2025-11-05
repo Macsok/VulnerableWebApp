@@ -4,12 +4,26 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Counter, Gauge, Histogram
 
 # Załaduj zmienne środowiskowe z pliku .env
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Inicjalizacja Prometheus metrics
+metrics = PrometheusMetrics(app)
+
+# Metryki do monitorowania sesji
+active_sessions = Gauge('flask_active_sessions', 'Number of active user sessions')
+login_counter = Counter('flask_user_logins_total', 'Total number of user logins')
+logout_counter = Counter('flask_user_logouts_total', 'Total number of user logouts')
+failed_login_counter = Counter('flask_failed_logins_total', 'Total number of failed login attempts')
+session_duration = Histogram('flask_session_duration_seconds', 'Session duration in seconds')
+messages_sent = Counter('flask_messages_sent_total', 'Total number of messages sent')
+messages_deleted = Counter('flask_messages_deleted_total', 'Total number of messages deleted')
 
 # Skalowalna konfiguracja bazy danych - domyślnie PostgreSQL
 # Możliwość łatwej zmiany przez zmienną środowiskową DATABASE_URL
@@ -92,17 +106,39 @@ def login():
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['username'] = user.username
+            session['login_time'] = datetime.utcnow().isoformat()
+            
+            # Metryki
+            active_sessions.inc()
+            login_counter.inc()
+            
             flash('Zalogowano pomyślnie!', 'success')
             return redirect(url_for('index'))
         else:
+            failed_login_counter.inc()
             flash('Nieprawidłowa nazwa użytkownika lub hasło!', 'danger')
     
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
+    # Oblicz czas trwania sesji
+    if 'login_time' in session:
+        try:
+            login_time = datetime.fromisoformat(session['login_time'])
+            duration = (datetime.utcnow() - login_time).total_seconds()
+            session_duration.observe(duration)
+        except:
+            pass
+    
     session.pop('user_id', None)
     session.pop('username', None)
+    session.pop('login_time', None)
+    
+    # Metryki
+    active_sessions.dec()
+    logout_counter.inc()
+    
     flash('Wylogowano pomyślnie!', 'info')
     return redirect(url_for('login'))
 
@@ -117,6 +153,7 @@ def send_message():
         new_message = Message(content=content, user_id=session['user_id'])
         db.session.add(new_message)
         db.session.commit()
+        messages_sent.inc()
         flash('Wiadomość wysłana!', 'success')
     
     return redirect(url_for('index'))
@@ -132,6 +169,7 @@ def delete_message(message_id):
     if message.user_id == session['user_id']:
         db.session.delete(message)
         db.session.commit()
+        messages_deleted.inc()
         flash('Wiadomość usunięta!', 'info')
     else:
         flash('Nie możesz usunąć tej wiadomości!', 'danger')
