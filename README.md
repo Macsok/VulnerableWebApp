@@ -60,3 +60,39 @@ kubectl delete -k .
 ```
 terraform destroy
 ```
+
+# SAST Security Scanning (Checkov)
+## Automatyczne skanowanie
+Workflow SAST uruchamia się automatycznie:
+- Przy każdym push do brancha `main`
+- Przy każdym Pull Request
+- Co tydzień (w poniedziałki o 9:00 UTC)
+- Ręcznie z zakładki Actions w GitHub
+
+## Wyniki skanowania
+Wyniki są zapisywane w trzech miejscach:
+1. **GitHub Actions Artifacts** - pełne raporty (JSON, SARIF, tekstowe) dostępne przez 90 dni
+2. **GitHub Security Tab** - zintegrowane z GitHub Security (zakładka Security → Code scanning)
+3. **Workflow Logs** - wyniki w konsoli
+
+## Ręczne uruchomienie skanowania lokalnie
+```ps
+# Instalacja Checkov
+pip install checkov
+
+# Skanowanie Terraform
+checkov -d infra/ --framework terraform
+
+# Skanowanie Dockerfile
+checkov -f app/Dockerfile --framework dockerfile
+
+# Skanowanie Kubernetes
+checkov -d kubernetes/ --framework kubernetes
+
+# Skanowanie wszystkiego z raportem JSON
+checkov -d . --output json --output-file-path ./checkov-report.json
+```
+
+## Konfiguracja
+Plik `.checkov.yml` w głównym katalogu zawiera konfigurację Checkov.
+Można tam dodać wyjątki dla konkretnych sprawdzeń (skip-check).

@@ -1,0 +1,43 @@
+# Checkov Configuration File
+# https://www.checkov.io/2.Basics/Suppressing%20and%20Skipping%20Policies.html
+
+# Directories to scan
+directory:
+  - infra
+  - kubernetes
+  - app
+
+# Frameworks to scan
+framework:
+  - terraform
+  - kubernetes
+  - dockerfile
+  - docker_compose
+
+# Output format
+output: cli
+
+# Compact output (set to false for detailed output)
+compact: false
+
+# Quiet mode (set to true to suppress passed checks)
+quiet: false
+
+# Download external modules (for Terraform)
+download-external-modules: true
+
+# Skip specific checks (add check IDs you want to skip)
+# Example:
+# skip-check:
+#   - CKV_DOCKER_2  # Ensure HEALTHCHECK is enabled
+#   - CKV_K8S_8     # Liveness Probe Should Be Configured
+
+# Set severity threshold (optional)
+# Options: CRITICAL, HIGH, MEDIUM, LOW
+# check-threshold: HIGH
+
+# Enable soft fail mode (don't fail pipeline on findings)
+soft-fail: true
+
+# Create a baseline file to track exceptions
+# baseline: .checkov.baseline

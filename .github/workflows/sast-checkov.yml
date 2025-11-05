@@ -1,0 +1,124 @@
+name: SAST Security Scan (Checkov)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:  # Allows manual trigger
+  schedule:
+    # Run weekly on Mondays at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  checkov-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # For uploading to GitHub Security tab
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Checkov
+        run: |
+          pip install checkov
+
+      - name: Create reports directory
+        run: mkdir -p checkov-reports
+
+      - name: Run Checkov on Terraform
+        continue-on-error: true  # Continue even if vulnerabilities are found
+        run: |
+          checkov -d infra/ \
+            --framework terraform \
+            --output cli \
+            --output json \
+            --output sarif \
+            --output-file-path checkov-reports/ \
+            --repo-id ${{ github.repository }} \
+            --branch ${{ github.ref_name }} || true
+
+      - name: Run Checkov on Dockerfile
+        continue-on-error: true
+        run: |
+          checkov -f app/Dockerfile \
+            --framework dockerfile \
+            --output cli \
+            --output json \
+            --output sarif \
+            --output-file-path checkov-reports/ \
+            --repo-id ${{ github.repository }} \
+            --branch ${{ github.ref_name }} || true
+
+      - name: Run Checkov on Kubernetes
+        continue-on-error: true
+        run: |
+          checkov -d kubernetes/ \
+            --framework kubernetes \
+            --output cli \
+            --output json \
+            --output sarif \
+            --output-file-path checkov-reports/ \
+            --repo-id ${{ github.repository }} \
+            --branch ${{ github.ref_name }} || true
+
+      - name: Run Checkov on Docker Compose
+        continue-on-error: true
+        run: |
+          checkov -f app/docker-compose.yml \
+            --framework docker_compose \
+            --output cli \
+            --output json \
+            --output sarif \
+            --output-file-path checkov-reports/ \
+            --repo-id ${{ github.repository }} \
+            --branch ${{ github.ref_name }} || true
+
+      - name: Generate summary report
+        if: always()
+        run: |
+          echo "# Checkov SAST Scan Results" > checkov-reports/summary.md
+          echo "" >> checkov-reports/summary.md
+          echo "**Repository:** ${{ github.repository }}" >> checkov-reports/summary.md
+          echo "**Branch:** ${{ github.ref_name }}" >> checkov-reports/summary.md
+          echo "**Commit:** ${{ github.sha }}" >> checkov-reports/summary.md
+          echo "**Scan Date:** $(date -u)" >> checkov-reports/summary.md
+          echo "" >> checkov-reports/summary.md
+          echo "## Scan Coverage" >> checkov-reports/summary.md
+          echo "- Terraform files (infra/)" >> checkov-reports/summary.md
+          echo "- Dockerfile (app/Dockerfile)" >> checkov-reports/summary.md
+          echo "- Kubernetes manifests (kubernetes/)" >> checkov-reports/summary.md
+          echo "- Docker Compose (app/docker-compose.yml)" >> checkov-reports/summary.md
+          echo "" >> checkov-reports/summary.md
+          echo "## Report Files" >> checkov-reports/summary.md
+          echo "Check the artifacts for detailed JSON and SARIF reports." >> checkov-reports/summary.md
+          ls -lah checkov-reports/
+
+      - name: Upload Checkov results as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-scan-results-${{ github.run_number }}
+          path: checkov-reports/
+          retention-days: 90
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov-reports/
+          category: checkov
+
+      - name: Check for critical failures
+        run: |
+          echo "Scan completed. Check artifacts and Security tab for detailed results."
+          echo "Note: This step does not fail the pipeline to allow deployment."
+          echo "Review the findings and address critical issues."

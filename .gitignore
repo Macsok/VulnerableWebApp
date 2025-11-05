@@ -8,6 +8,11 @@ infra/.terraform/*
 *.key
 *.crt
 *.pem
-*env
+*.env
 kubernetes/certificate.crt
 kubernetes/private.key
+
+# Checkov reports
+checkov-reports/
+.checkov.baseline
+checkov-report.json

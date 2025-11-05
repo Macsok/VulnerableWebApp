@@ -29,8 +29,6 @@ jobs:
       uses: azure/powershell@v2
       with:
         azPSVersion: "latest"
-        # $Env:TLS_CRT = {{ secrets.TLS_CRT }}
-        # $Env:TLS_KEY = {{ secrets.TLS_KEY }}
         inlineScript: |
           cd kubernetes
           echo "${{ secrets.TLS_CRT }}" > cert-bundle.crt
