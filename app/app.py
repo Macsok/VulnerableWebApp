@@ -25,6 +25,9 @@ session_duration = Histogram('flask_session_duration_seconds', 'Session duration
 messages_sent = Counter('flask_messages_sent_total', 'Total number of messages sent')
 messages_deleted = Counter('flask_messages_deleted_total', 'Total number of messages deleted')
 
+# Inicjalizuj Gauge na 0
+active_sessions.set(0)
+
 # Skalowalna konfiguracja bazy danych - domyślnie PostgreSQL
 # Możliwość łatwej zmiany przez zmienną środowiskową DATABASE_URL
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
@@ -64,6 +67,15 @@ class Message(db.Model):
 # Usuń automatyczną inicjalizację - będzie w init_db.py
 # with app.app_context():
 #     db.create_all()
+
+# Funkcja do monitorowania aktywnych sesji
+@app.before_request
+def track_active_sessions():
+    """Śledź aktywne sesje przed każdym requestem"""
+    if 'user_id' in session:
+        # Oznacz, że sesja jest aktywna
+        if not hasattr(session, '_metrics_tracked'):
+            session._metrics_tracked = True
 
 @app.route('/')
 def index():
@@ -175,6 +187,11 @@ def delete_message(message_id):
         flash('Nie możesz usunąć tej wiadomości!', 'danger')
     
     return redirect(url_for('index'))
+
+@app.route('/health')
+def health():
+    """Endpoint do health check"""
+    return {'status': 'healthy', 'pod': os.environ.get('POD_NAME', 'local')}, 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

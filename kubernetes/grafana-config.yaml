@@ -12,6 +12,10 @@ data:
       url: http://prometheus:9090
       isDefault: true
       editable: true
+      jsonData:
+        timeInterval: "5s"
+        queryTimeout: "60s"
+        httpMethod: "POST"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -38,114 +42,198 @@ metadata:
 data:
   session-monitoring.json: |
     {
-      "dashboard": {
-        "title": "Session Monitoring Dashboard",
-        "tags": ["sessions", "flask"],
-        "timezone": "browser",
-        "panels": [
-          {
-            "title": "Active Sessions",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-            "targets": [
-              {
-                "expr": "flask_active_sessions",
-                "legendFormat": "Active Sessions"
-              }
-            ]
+      "title": "Session Monitoring Dashboard",
+      "tags": ["sessions", "flask"],
+      "timezone": "browser",
+      "panels": [
+        {
+          "title": "Active Sessions",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "flask_active_sessions",
+              "legendFormat": "Active Sessions",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            }
           },
-          {
-            "title": "Total Logins",
-            "type": "stat",
-            "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
-            "targets": [
-              {
-                "expr": "flask_user_logins_total"
-              }
-            ]
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        },
+        {
+          "title": "Total Logins",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "flask_user_logins_total",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            }
           },
-          {
-            "title": "Failed Logins",
-            "type": "stat",
-            "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
-            "targets": [
-              {
-                "expr": "flask_failed_logins_total"
-              }
-            ]
+          "options": {"colorMode": "value", "graphMode": "area", "orientation": "auto", "textMode": "auto"}
+        },
+        {
+          "title": "Failed Logins",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "targets": [
+            {
+              "expr": "flask_failed_logins_total",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 10}]}
+            }
           },
-          {
-            "title": "Session Duration",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
-            "targets": [
-              {
-                "expr": "histogram_quantile(0.95, rate(flask_session_duration_seconds_bucket[5m]))",
-                "legendFormat": "95th percentile"
-              },
-              {
-                "expr": "histogram_quantile(0.50, rate(flask_session_duration_seconds_bucket[5m]))",
-                "legendFormat": "50th percentile"
-              }
-            ]
+          "options": {"colorMode": "value", "graphMode": "area", "orientation": "auto", "textMode": "auto"}
+        },
+        {
+          "title": "Login/Logout Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+          "targets": [
+            {
+              "expr": "rate(flask_user_logins_total[5m])",
+              "legendFormat": "Logins/sec",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(flask_user_logouts_total[5m])",
+              "legendFormat": "Logouts/sec",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            }
           },
-          {
-            "title": "Login/Logout Rate",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
-            "targets": [
-              {
-                "expr": "rate(flask_user_logins_total[5m])",
-                "legendFormat": "Logins/sec"
-              },
-              {
-                "expr": "rate(flask_user_logouts_total[5m])",
-                "legendFormat": "Logouts/sec"
-              }
-            ]
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        },
+        {
+          "title": "Messages Activity",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "rate(flask_messages_sent_total[5m])",
+              "legendFormat": "Messages sent/sec",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(flask_messages_deleted_total[5m])",
+              "legendFormat": "Messages deleted/sec",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            }
           },
-          {
-            "title": "Messages Activity",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
-            "targets": [
-              {
-                "expr": "rate(flask_messages_sent_total[5m])",
-                "legendFormat": "Messages sent/sec"
-              },
-              {
-                "expr": "rate(flask_messages_deleted_total[5m])",
-                "legendFormat": "Messages deleted/sec"
-              }
-            ]
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        },
+        {
+          "title": "HTTP Request Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {
+              "expr": "rate(flask_http_request_total[5m])",
+              "legendFormat": "{{method}} {{status}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            }
           },
-          {
-            "title": "HTTP Request Rate",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
-            "targets": [
-              {
-                "expr": "rate(flask_http_request_total[5m])",
-                "legendFormat": "{{method}} {{status}}"
-              }
-            ]
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        },
+        {
+          "title": "Session Duration (95th)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, rate(flask_session_duration_seconds_bucket[5m]))",
+              "legendFormat": "95th percentile",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(flask_session_duration_seconds_bucket[5m]))",
+              "legendFormat": "50th percentile",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+              "unit": "s"
+            }
           },
-          {
-            "title": "HTTP Request Duration",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
-            "targets": [
-              {
-                "expr": "histogram_quantile(0.95, rate(flask_http_request_duration_seconds_bucket[5m]))",
-                "legendFormat": "95th percentile"
-              }
-            ]
-          }
-        ],
-        "refresh": "5s",
-        "schemaVersion": 16,
-        "version": 0
-      }
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        },
+        {
+          "title": "HTTP Request Duration (95th)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, rate(flask_http_request_duration_seconds_bucket[5m]))",
+              "legendFormat": "95th percentile",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "palette-classic"},
+              "custom": {"axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto"},
+              "mappings": [],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+              "unit": "s"
+            }
+          },
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 38,
+      "version": 1,
+      "uid": "session-monitoring",
+      "time": {"from": "now-15m", "to": "now"},
+      "timepicker": {}
     }
 ---
 apiVersion: apps/v1
