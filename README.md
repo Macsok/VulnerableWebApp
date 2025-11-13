@@ -45,7 +45,7 @@ terraform apply #następnie 'yes'
 ```
 
 # Budowanie Aplikacji
-Przed zbudowaniem należy dodać certyfikat i klucz do katalogu kubernetes/ (cert-bundle.crt, private.key).
+Przed zbudowaniem należy dodać certyfikat i klucz do katalogu kubernetes/ (cert-bundle.crt, private.key, certificate.pfx (certyfikat domeny WAF)).
 ```ps
 cd kubernetes
 kubectl apply -k .
@@ -74,24 +74,6 @@ Wyniki są zapisywane w trzech miejscach:
 1. **GitHub Actions Artifacts** - pełne raporty (JSON, SARIF, tekstowe) dostępne przez 90 dni
 2. **GitHub Security Tab** - zintegrowane z GitHub Security (zakładka Security → Code scanning)
 3. **Workflow Logs** - wyniki w konsoli
-
-## Ręczne uruchomienie skanowania lokalnie
-```ps
-# Instalacja Checkov
-pip install checkov
-
-# Skanowanie Terraform
-checkov -d infra/ --framework terraform
-
-# Skanowanie Dockerfile
-checkov -f app/Dockerfile --framework dockerfile
-
-# Skanowanie Kubernetes
-checkov -d kubernetes/ --framework kubernetes
-
-# Skanowanie wszystkiego z raportem JSON
-checkov -d . --output json --output-file-path ./checkov-report.json
-```
 
 ## Konfiguracja
 Plik `.checkov.yml` w głównym katalogu zawiera konfigurację Checkov.
