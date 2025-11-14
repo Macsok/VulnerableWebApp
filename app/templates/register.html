@@ -9,6 +9,7 @@
             <div class="card-body p-5">
                 <h2 class="text-center mb-4">Rejestracja</h2>
                 <form method="POST" action="{{ url_for('register') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label for="username" class="form-label">Nazwa użytkownika</label>
                         <input type="text" class="form-control" id="username" name="username" required>
