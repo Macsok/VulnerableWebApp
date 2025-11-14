@@ -6,12 +6,17 @@ import os
 from dotenv import load_dotenv
 from prometheus_flask_exporter import PrometheusMetrics
 from prometheus_client import Counter, Gauge, Histogram
+from flask_wtf.csrf import CSRFProtect
+
 
 # Załaduj zmienne środowiskowe z pliku .env
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+#ochrona CSRF
+csrf = CSRFProtect(app)
 
 # Inicjalizacja Prometheus metrics
 metrics = PrometheusMetrics(app)
