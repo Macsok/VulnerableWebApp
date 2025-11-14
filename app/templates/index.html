@@ -7,6 +7,7 @@
     <div class="card-body">
         <h2 class="card-title mb-4">💬 Czat</h2>
         <form id="messageForm" method="POST" action="{{ url_for('send_message') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="mb-3">
                 <textarea class="form-control" id="messageContent" name="content" rows="3" placeholder="Napisz wiadomość..." required></textarea>
             </div>
@@ -40,6 +41,7 @@
                     </div>
                     {% if message.user_id == session['user_id'] %}
                     <form method="POST" action="{{ url_for('delete_message', message_id=message.id) }}" class="ms-2" onsubmit="return confirm('Czy na pewno chcesz usunąć tę wiadomość?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-danger btn-sm">
                             <i class="bi bi-trash"></i> Usuń
                         </button>
