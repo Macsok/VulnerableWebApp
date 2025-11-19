@@ -20,6 +20,7 @@ try:
         print("Tabele utworzone/zweryfikowane:")
         print("  - User")
         print("  - Message")
+        print("  - UserSession")
         print("\n🎉 Gotowe! Aplikacja jest gotowa do użycia.")
         sys.exit(0)
         
