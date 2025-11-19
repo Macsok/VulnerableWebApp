@@ -45,3 +45,10 @@ variable "dns_label" {
   type        = string
   default     = "vulnerable-webapp"
 }
+
+variable "ssl_cert_password" {
+  description = "Password for the SSL certificate PFX file"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

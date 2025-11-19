@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-frontend-service
+  annotations:
+    service.beta.kubernetes.io/azure-pip-name: "myAKSPublicIP"
+    service.beta.kubernetes.io/azure-load-balancer-resource-group: "MC_vulnerable-web-app-rg_vulnerableWebappAKS_switzerlandnorth"
+spec:
+  selector:
+    app: httpd-test
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+      name: https
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: httpd-test-files
+data:
+  F3DA99968E0769E5565CC5EBF59C8F63.txt: |
+    2FABD606CDFA5DFCFEF71F6619046FA7561649960A752626009F4199E2A1349B
+    comodoca.com
+    37aa3d17928aad6
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: httpd-test-pod
+  labels:
+    app: httpd-test
+spec:
+  containers:
+  - name: httpd
+    image: httpd:2.4
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: website-files
+      mountPath: /usr/local/apache2/htdocs/.well-known/pki-validation
+  volumes:
+  - name: website-files
+    configMap:
+      name: httpd-test-files
+      items:
+      - key: F3DA99968E0769E5565CC5EBF59C8F63.txt
+        path: F3DA99968E0769E5565CC5EBF59C8F63.txt
