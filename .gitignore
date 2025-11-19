@@ -9,6 +9,7 @@ infra/.terraform/*
 *.crt
 *.pem
 *.env
+.idea/
 *.pfx
 kubernetes/certificate.crt
 kubernetes/private.key
