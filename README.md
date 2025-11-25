@@ -38,6 +38,13 @@ az aks install-cli
 ```
 
 # Budowanie Infrastruktury
+
+## Dodane wolumenu, tylko raz 
+
+```ps
+kubectl apply -f .\persistentVolume\persistentVolume.yaml
+```
+## Infrastruktura
 ```ps
 cd infra
 terraform init
@@ -54,6 +61,7 @@ kubectl apply -k .
 # Usuwanie Aplikacji
 ```ps
 kubectl delete -k .
+kubectl delete -f .\persistentVolume\persistentVolume.yaml
 ```
 
 # Usuwanie Infrastruktury
