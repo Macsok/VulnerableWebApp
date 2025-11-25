@@ -9,6 +9,7 @@ resources:
   - nginx-redirect.yaml
   - nginx-loadbalancer.yaml
   - prometheus-config.yaml
+  - prometheus-rbac.yaml
   - grafana-config.yaml
 
 secretGenerator:
