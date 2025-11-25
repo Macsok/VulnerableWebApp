@@ -27,32 +27,33 @@ Sprawdzenie:
 Get-ChildItem Env:
 ```
 
-# Load kubectl creds.
-```
-az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
-```
-
 # Install kubectl
 ```
 az aks install-cli
 ```
 
 # Budowanie Infrastruktury
-
-## Dodane wolumenu, tylko raz 
-
-```ps
-kubectl apply -f .\persistentVolume\persistentVolume.yaml
-```
-## Infrastruktura
 ```ps
 cd infra
 terraform init
 terraform apply #następnie 'yes'
 ```
 
+# Load kubectl creds.
+```
+az aks get-credentials --resource-group vulnerable-web-app-rg --name vulnerableWebappAKS
+```
+
 # Budowanie Aplikacji
 Przed zbudowaniem należy dodać certyfikat i klucz do katalogu kubernetes/ (cert-bundle.crt, private.key, certificate.pfx (certyfikat domeny WAF)).
+
+## Dodane wolumenu, tylko raz 
+
+```ps
+kubectl apply -f .\persistentVolume\persistentVolume.yaml
+```
+
+## Aplikacja
 ```ps
 cd kubernetes
 kubectl apply -k .
