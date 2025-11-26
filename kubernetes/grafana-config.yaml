@@ -65,6 +65,9 @@ data:
     "links": [],
     "panels": [
       {
+        "datasource": {
+          "type": "prometheus"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -140,8 +143,10 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "flask_active_sessions",
+            "editorMode": "builder",
+            "expr": "sum(flask_active_sessions)",
             "legendFormat": "Active Sessions",
+            "range": true,
             "refId": "A"
           }
         ],
@@ -199,12 +204,12 @@ data:
         "targets": [
           {
             "editorMode": "builder",
-            "expr": "sum(flask_user_logins_total)",
+            "expr": "sum(changes(flask_user_logins_total[24h]))",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Total Logins",
+        "title": "Total Logins [24h]",
         "type": "stat"
       },
       {
@@ -262,15 +267,19 @@ data:
         "targets": [
           {
             "editorMode": "builder",
-            "expr": "sum(flask_failed_logins_total)",
+            "expr": "sum(changes(flask_failed_logins_total[24h]))",
             "range": true,
             "refId": "A"
           }
         ],
-        "title": "Failed Logins",
+        "title": "Failed Logins [24h]",
         "type": "stat"
       },
       {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -346,20 +355,28 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "rate(flask_user_logins_total[5m])",
+            "editorMode": "code",
+            "expr": "sum(changes(flask_user_logins_total[15m]))",
             "legendFormat": "Logins/sec",
+            "range": true,
             "refId": "A"
           },
           {
-            "expr": "rate(flask_user_logouts_total[5m])",
+            "editorMode": "code",
+            "expr": "sum(increase(flask_user_logouts_total[15m]))",
             "legendFormat": "Logouts/sec",
+            "range": true,
             "refId": "B"
           }
         ],
-        "title": "Login/Logout Rate",
+        "title": "Login/Logout Rate [15min]",
         "type": "timeseries"
       },
       {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -435,20 +452,28 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "rate(flask_messages_sent_total[5m])",
+            "editorMode": "code",
+            "expr": "sum(increase(flask_messages_sent_total[15m]))",
             "legendFormat": "Messages sent/sec",
+            "range": true,
             "refId": "A"
           },
           {
-            "expr": "rate(flask_messages_deleted_total[5m])",
+            "editorMode": "code",
+            "expr": "sum(increase(flask_messages_deleted_total[15m]))",
             "legendFormat": "Messages deleted/sec",
+            "range": true,
             "refId": "B"
           }
         ],
-        "title": "Messages Activity",
+        "title": "Messages Activity [15min]",
         "type": "timeseries"
       },
       {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -524,15 +549,21 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
-            "expr": "rate(flask_http_request_total[5m])",
+            "editorMode": "code",
+            "expr": "sum by(status) (increase(flask_http_request_total[15m]))",
             "legendFormat": "{{method}} {{status}}",
+            "range": true,
             "refId": "A"
           }
         ],
-        "title": "HTTP Request Rate",
+        "title": "HTTP Request Rate [15m]",
         "type": "timeseries"
       },
       {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -609,13 +640,17 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
+            "editorMode": "builder",
             "expr": "histogram_quantile(0.95, rate(flask_session_duration_seconds_bucket[5m]))",
             "legendFormat": "95th percentile",
+            "range": true,
             "refId": "A"
           },
           {
-            "expr": "histogram_quantile(0.50, rate(flask_session_duration_seconds_bucket[5m]))",
+            "editorMode": "builder",
+            "expr": "histogram_quantile(0.5, rate(flask_session_duration_seconds_bucket[5m]))",
             "legendFormat": "50th percentile",
+            "range": true,
             "refId": "B"
           }
         ],
@@ -623,6 +658,10 @@ data:
         "type": "timeseries"
       },
       {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "fieldConfig": {
           "defaults": {
             "color": {
@@ -674,7 +713,32 @@ data:
             },
             "unit": "s"
           },
-          "overrides": []
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "95th percentile"
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": true,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "gridPos": {
           "h": 8,
@@ -699,8 +763,10 @@ data:
         "pluginVersion": "12.3.0",
         "targets": [
           {
+            "editorMode": "builder",
             "expr": "histogram_quantile(0.95, rate(flask_http_request_duration_seconds_bucket[5m]))",
             "legendFormat": "95th percentile",
+            "range": true,
             "refId": "A"
           }
         ],
@@ -728,6 +794,7 @@ data:
     "uid": "session-monitoring",
     "version": 1
     }
+  
 ---
 apiVersion: apps/v1
 kind: Deployment
